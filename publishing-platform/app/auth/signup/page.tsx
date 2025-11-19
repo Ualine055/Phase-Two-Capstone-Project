@@ -50,11 +50,29 @@ export default function SignUpPage() {
     }
 
     setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      router.push("/dashboard")
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: formData.name,
+          email: formData.email,
+          password: formData.password
+        })
+      })
+
+      if (response.ok) {
+        alert('Account created successfully! Please login.')
+        router.push('/auth/login')
+      } else {
+        const error = await response.json()
+        setErrors({ name: error.error })
+      }
+    } catch (error) {
+      setErrors({ name: 'Failed to create account' })
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (

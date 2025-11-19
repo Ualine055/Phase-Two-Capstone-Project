@@ -18,11 +18,22 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
-        const response = await fetch('/api/posts?limit=50')
+        const response = await fetch('/api/posts?limit=50&includeDrafts=true')
         if (response.ok) {
           const data = await response.json()
-          // Filter posts by current user
-          const filteredPosts = data.posts?.filter((post: any) => post.userId === user?.id) || []
+          console.log('[Dashboard] Current user ID:', user?.id)
+          console.log('[Dashboard] All posts:', data.posts)
+          
+          // Temporarily show all posts for debugging
+          const filteredPosts = data.posts || []
+          
+          // TODO: Fix user ID matching
+          // const filteredPosts = data.posts?.filter((post: any) => {
+          //   console.log('[Dashboard] Comparing:', post.userId, '===', user?.id, '?', post.userId === user?.id)
+          //   return post.userId === user?.id
+          // }) || []
+          
+          console.log('[Dashboard] Filtered posts for user:', filteredPosts)
           setUserPosts(filteredPosts)
         }
       } catch (error) {
