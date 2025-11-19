@@ -32,13 +32,14 @@ export function useComments(postId: string | number) {
       })
       if (!response.ok) throw new Error('Failed to add comment')
       const newComment = await response.json()
-      setComments([...comments, newComment])
+      // Refresh comments from server to get updated count
+      await fetchComments()
       return newComment
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       return null
     }
-  }, [comments, postId])
+  }, [postId, fetchComments])
 
   const deleteComment = useCallback(async (commentId: string | number) => {
     try {

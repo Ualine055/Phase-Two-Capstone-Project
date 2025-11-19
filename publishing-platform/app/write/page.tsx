@@ -6,7 +6,6 @@ import { Editor } from "@/components/editor"
 import { AuthGuard } from "@/components/auth-guard"
 import { useAuth } from "@/hooks/useAuth"
 import { Save, Eye, Clock, Tag } from "lucide-react"
-import * as db from "@/lib/db"
 
 export default function WritePage() {
   const { user } = useAuth()
@@ -14,6 +13,7 @@ export default function WritePage() {
   const [excerpt, setExcerpt] = useState("")
   const [content, setContent] = useState("")
   const [tags, setTags] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
   const [isPreview, setIsPreview] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -25,15 +25,30 @@ export default function WritePage() {
 
     setLoading(true)
     try {
-      const post = await db.createPost(
-        user.id,
-        title,
-        excerpt,
-        content,
-        tags.split(",").map(tag => tag.trim()).filter(tag => tag)
-      )
-      console.log("Draft saved with ID:", post.id)
-      alert("Draft saved successfully!")
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          title,
+          excerpt,
+          content,
+          tags: tags.split(",").map(tag => tag.trim()).filter(tag => tag),
+          imageUrl,
+          status: 'draft'
+        })
+      })
+
+      if (response.ok) {
+        const post = await response.json()
+        console.log("Draft saved with ID:", post.id)
+        alert("Draft saved successfully!")
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save draft')
+      }
     } catch (err) {
       console.error("Error saving draft:", err)
       alert("Failed to save draft.")
@@ -48,29 +63,57 @@ export default function WritePage() {
       return
     }
 
+    console.log("Publishing with user:", user)
     setLoading(true)
     try {
-      const post = await db.createPost(
-        user.id,
+      const requestBody = {
+        userId: user.id,
         title,
         excerpt,
         content,
-        tags.split(",").map(tag => tag.trim()).filter(tag => tag)
-      )
+        tags: tags.split(",").map(tag => tag.trim()).filter(tag => tag),
+        imageUrl,
+        status: 'published'
+      }
       
-      // Update post status to published
-      await db.updatePost(post.id, title, excerpt, content, "published")
+      console.log("Request body:", requestBody)
       
-      console.log("Published with ID:", post.id)
-      alert("Story published successfully!")
-      // Clear form after publishing
-      setTitle("")
-      setExcerpt("")
-      setContent("")
-      setTags("")
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      })
+
+      console.log("Response status:", response.status)
+      console.log("Response ok:", response.ok)
+
+      if (response.ok) {
+        const post = await response.json()
+        console.log("Published with ID:", post.id)
+        alert("Story published successfully!")
+        // Clear form after publishing
+        setTitle("")
+        setExcerpt("")
+        setContent("")
+        setTags("")
+        setImageUrl("")
+      } else {
+        const errorText = await response.text()
+        console.error("API Error Response:", errorText)
+        let errorMessage = 'Failed to publish story'
+        try {
+          const errorJson = JSON.parse(errorText)
+          errorMessage = errorJson.error || errorMessage
+        } catch (e) {
+          errorMessage = errorText || errorMessage
+        }
+        alert(`Failed to publish story: ${errorMessage}`)
+      }
     } catch (err) {
-      console.error("Error publishing story:", err)
-      alert("Failed to publish story.")
+      console.error("Network/Parse Error:", err)
+      alert(`Failed to publish story: ${err.message}`)
     } finally {
       setLoading(false)
     }
@@ -161,6 +204,32 @@ export default function WritePage() {
                 placeholder="Add tags separated by commas (e.g., technology, design, tutorial)"
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
+            </div>
+
+            <div className="space-y-3 p-4 rounded-lg bg-secondary/30 border border-border">
+              <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Eye size={16} />
+                Cover Image
+              </label>
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="Add image URL (e.g., https://example.com/image.jpg)"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              {imageUrl && (
+                <div className="mt-3">
+                  <img
+                    src={imageUrl}
+                    alt="Cover preview"
+                    className="w-full h-40 object-cover rounded-lg border border-border"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-foreground/70 p-4 rounded-lg bg-muted/50">
