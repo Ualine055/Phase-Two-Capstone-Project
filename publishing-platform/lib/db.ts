@@ -36,26 +36,27 @@ export async function createUser(username: string, email: string, passwordHash: 
 }
 
 // =================== POSTS QUERIES ===================
-export async function getPosts(page: number = 1, limitCount: number = 10) {
+export async function getPosts(page: number = 1, limitCount: number = 10, includeDrafts: boolean = false) {
   try {
-    console.log('[DB] Getting posts with page:', page, 'limit:', limitCount);
+    console.log('[DB] Getting posts with page:', page, 'limit:', limitCount, 'includeDrafts:', includeDrafts);
     
-    // First, try to get all posts to see what's in the database
-    const allPostsQuery = query(collection(db, 'posts'));
-    const allPostsSnapshot = await getDocs(allPostsQuery);
-    console.log('[DB] Total posts in database:', allPostsSnapshot.size);
+    let q;
+    if (includeDrafts) {
+      // Get all posts (published and drafts)
+      q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+    } else {
+      // Get only published posts
+      q = query(collection(db, 'posts'), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
+    }
     
-    allPostsSnapshot.docs.forEach(doc => {
-      console.log('[DB] Post:', doc.id, doc.data());
-    });
-    
-    // Now get published posts
-    const q = query(collection(db, 'posts'), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
     const totalQuery = await getDocs(q);
     const total = totalQuery.size;
-    console.log('[DB] Published posts found:', total);
+    console.log('[DB] Posts found:', total);
     
-    const limitedQuery = query(collection(db, 'posts'), where('status', '==', 'published'), orderBy('createdAt', 'desc'), limit(limitCount));
+    const limitedQuery = includeDrafts 
+      ? query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(limitCount))
+      : query(collection(db, 'posts'), where('status', '==', 'published'), orderBy('createdAt', 'desc'), limit(limitCount));
+    
     const snapshot = await getDocs(limitedQuery);
     const posts = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
     
