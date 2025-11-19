@@ -1,16 +1,9 @@
 // FIREBASE BACKEND - Using Firestore
-// Install: npm install firebase-admin
-// Download service account JSON from Firebase Console
-// Environment: FIREBASE_SERVICE_ACCOUNT='{...json...}'
+// Install: npm install firebase
+// Environment variables configured in .env.local
 
-
-
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, getDoc, query, where, limit, getDocs, addDoc, updateDoc, deleteDoc, Timestamp, orderBy, setDoc } from 'firebase/firestore';
-
-const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG || '{}');
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+import { db } from './firebase';
+import { collection, doc, getDoc, query, where, limit, getDocs, addDoc, updateDoc, deleteDoc, Timestamp, orderBy, setDoc } from 'firebase/firestore';
 
 // =================== USERS QUERIES ===================
 export async function getUserById(id: string) {
@@ -44,42 +37,61 @@ export async function createUser(username: string, email: string, passwordHash: 
 
 // =================== POSTS QUERIES ===================
 export async function getPosts(page: number = 1, limitCount: number = 10) {
-  const q = query(collection(db, 'posts'), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
-  
-  const totalQuery = await getDocs(q);
-  const total = totalQuery.size;
-  
-  const limitedQuery = query(collection(db, 'posts'), where('status', '==', 'published'), orderBy('createdAt', 'desc'), limit(limitCount));
-  const snapshot = await getDocs(limitedQuery);
-  const posts = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
-  
-  return {
-    posts,
-    pagination: {
-      page,
-      limit: limitCount,
-      total,
-      pages: Math.ceil(total / limitCount)
-    }
-  };
+  try {
+    console.log('[DB] Getting posts with page:', page, 'limit:', limitCount);
+    
+    // First, try to get all posts to see what's in the database
+    const allPostsQuery = query(collection(db, 'posts'));
+    const allPostsSnapshot = await getDocs(allPostsQuery);
+    console.log('[DB] Total posts in database:', allPostsSnapshot.size);
+    
+    allPostsSnapshot.docs.forEach(doc => {
+      console.log('[DB] Post:', doc.id, doc.data());
+    });
+    
+    // Now get published posts
+    const q = query(collection(db, 'posts'), where('status', '==', 'published'), orderBy('createdAt', 'desc'));
+    const totalQuery = await getDocs(q);
+    const total = totalQuery.size;
+    console.log('[DB] Published posts found:', total);
+    
+    const limitedQuery = query(collection(db, 'posts'), where('status', '==', 'published'), orderBy('createdAt', 'desc'), limit(limitCount));
+    const snapshot = await getDocs(limitedQuery);
+    const posts = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+    
+    console.log('[DB] Returning posts:', posts.length);
+    return {
+      posts,
+      pagination: {
+        page,
+        limit: limitCount,
+        total,
+        pages: Math.ceil(total / limitCount)
+      }
+    };
+  } catch (error) {
+    console.error('[DB] Error in getPosts:', error);
+    throw error;
+  }
 }
 
-export async function getPostById(id: string) {
+export async function getPostById(id: string, includeDrafts: boolean = false) {
   const docRef = doc(db, 'posts', id);
   const docSnap = await getDoc(docRef);
   if (!docSnap.exists()) return null;
   const data = docSnap.data();
-  if (data?.status !== 'published') return null;
+  if (!includeDrafts && data?.status !== 'published') return null;
   return { id: docSnap.id, ...data };
 }
 
-export async function createPost(userId: string, title: string, excerpt: string, content: string, tags: string[]) {
+export async function createPost(userId: string, title: string, excerpt: string, content: string, tags: string[], imageUrl?: string) {
   const docRef = await addDoc(collection(db, 'posts'), {
     userId,
     title,
     excerpt,
     content,
     tags,
+    imageUrl: imageUrl || '',
     status: 'draft',
     viewsCount: 0,
     createdAt: Timestamp.now(),
