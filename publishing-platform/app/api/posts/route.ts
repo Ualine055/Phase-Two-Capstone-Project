@@ -86,15 +86,15 @@ export async function GET(request: NextRequest) {
 
     // Filter by search if provided
     if (search) {
-      result.posts = result.posts.filter(p =>
-        p.title.toLowerCase().includes(search.toLowerCase()) ||
-        p.excerpt.toLowerCase().includes(search.toLowerCase())
+      result.posts = result.posts.filter((p: any) =>
+        p.title?.toLowerCase().includes(search.toLowerCase()) ||
+        p.excerpt?.toLowerCase().includes(search.toLowerCase())
       );
     }
 
     // Filter by tag if provided
     if (tag) {
-      result.posts = result.posts.filter(p =>
+      result.posts = result.posts.filter((p: any) =>
         Array.isArray(p.tags) && p.tags.includes(tag)
       );
     }
@@ -118,6 +118,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Missing required fields: userId, title, content' },
         { status: 400 }
+      );
+    }
+
+    // Verify user exists
+    const user = await db.getUserById(userId);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found or unauthorized' },
+        { status: 401 }
       );
     }
 
