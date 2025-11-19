@@ -1,15 +1,63 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { AuthGuard } from "@/components/auth-guard"
+import { useAuth } from "@/hooks/useAuth"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
 import { BookOpen, Eye, Heart, MessageCircle, TrendingUp } from "lucide-react"
 
 export default function DashboardPage() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
+  const [userPosts, setUserPosts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      try {
+        const response = await fetch('/api/posts?limit=50')
+        if (response.ok) {
+          const data = await response.json()
+          // Filter posts by current user
+          const filteredPosts = data.posts?.filter((post: any) => post.userId === user?.id) || []
+          setUserPosts(filteredPosts)
+        }
+      } catch (error) {
+        console.error('Error fetching user posts:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (user?.id) {
+      fetchUserPosts()
+    }
+  }, [user?.id])
+
+  const handlePublishDraft = async (postId: string, title: string, excerpt: string, content: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'published' })
+      })
+      
+      if (response.ok) {
+        // Refresh posts to show updated status
+        const updatedPosts = userPosts.map(post => 
+          post.id === postId ? { ...post, status: 'published' } : post
+        )
+        setUserPosts(updatedPosts)
+        alert('Draft published successfully!')
+      }
+    } catch (error) {
+      console.error('Error publishing draft:', error)
+      alert('Failed to publish draft')
+    }
+  }
 
   const stats = [
     { label: "Total Views", value: "12,450", change: "+12%", icon: Eye },
@@ -28,12 +76,7 @@ export default function DashboardPage() {
     { name: "Sun", views: 350 },
   ]
 
-  const recentPosts = [
-    { id: 1, title: "Getting Started with React Hooks", views: 3420, likes: 420, status: "Published" },
-    { id: 2, title: "Advanced TypeScript Patterns", views: 2840, likes: 380, status: "Published" },
-    { id: 3, title: "Web Performance Optimization", views: 1240, likes: 185, status: "Draft" },
-    { id: 4, title: "Design Systems 2025", views: 0, likes: 0, status: "Draft" },
-  ]
+
 
   return (
     <AuthGuard>
@@ -150,38 +193,75 @@ export default function DashboardPage() {
 
             {activeTab === "posts" && (
               <div className="bg-card rounded-lg border border-border overflow-hidden">
-                <table className="w-full">
-                  <thead className="border-b border-border bg-muted/30">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Title</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Views</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Likes</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Status</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentPosts.map((post) => (
-                      <tr key={post.id} className="border-t border-border hover:bg-muted/30 transition-colors">
-                        <td className="px-6 py-4 text-foreground">{post.title}</td>
-                        <td className="px-6 py-4 text-foreground/70">{post.views}</td>
-                        <td className="px-6 py-4 text-foreground/70">{post.likes}</td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              post.status === "Published" ? "bg-primary/20 text-primary" : "bg-muted text-foreground/70"
-                            }`}
-                          >
-                            {post.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button className="text-primary hover:underline text-sm font-semibold">Edit</button>
-                        </td>
+                {loading ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-foreground/70">Loading your posts...</p>
+                  </div>
+                ) : userPosts.length > 0 ? (
+                  <table className="w-full">
+                    <thead className="border-b border-border bg-muted/30">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Title</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Views</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Status</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Created</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {userPosts.map((post) => (
+                        <tr key={post.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                          <td className="px-6 py-4 text-foreground font-medium">{post.title}</td>
+                          <td className="px-6 py-4 text-foreground/70">{post.viewsCount || 0}</td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${
+                                post.status === "published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {post.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-foreground/70 text-sm">
+                            {post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString() : 'Recently'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex gap-2">
+                              {post.status === 'draft' ? (
+                                <button
+                                  onClick={() => handlePublishDraft(post.id, post.title, post.excerpt, post.content)}
+                                  className="px-3 py-1 rounded bg-primary text-primary-foreground text-xs font-semibold hover:shadow-lg transition-shadow"
+                                >
+                                  Publish
+                                </button>
+                              ) : (
+                                <Link href={`/post/${post.id}`} className="text-primary hover:underline text-sm font-semibold">
+                                  View
+                                </Link>
+                              )}
+                              <Link href={`/write?edit=${post.id}`} className="text-foreground/60 hover:text-foreground text-sm font-semibold">
+                                Edit
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="p-12 text-center">
+                    <BookOpen size={48} className="mx-auto mb-4 text-foreground/30" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
+                    <p className="text-foreground/70 mb-6">Start writing your first story to see it here.</p>
+                    <Link
+                      href="/write"
+                      className="inline-flex items-center px-6 py-2 rounded-full bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow"
+                    >
+                      Write Your First Story
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
 

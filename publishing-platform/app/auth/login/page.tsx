@@ -8,9 +8,11 @@ import { useRouter } from "next/navigation"
 import { Eye, EyeOff, BookOpen } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
@@ -46,11 +48,27 @@ export default function LoginPage() {
     }
 
     setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Simulate authentication - replace with actual API call
+      const mockUser = {
+        id: "user_" + Date.now(),
+        username: formData.email.split('@')[0],
+        email: formData.email,
+        bio: "",
+        avatarUrl: "",
+        followersCount: 0,
+        followingCount: 0,
+        createdAt: new Date()
+      }
+      
+      login?.(mockUser)
       router.push("/dashboard")
+    } catch (error) {
+      console.error("Login error:", error)
+      setErrors({ email: "Login failed. Please try again." })
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (
