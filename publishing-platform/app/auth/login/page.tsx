@@ -49,20 +49,27 @@ export default function LoginPage() {
 
     setIsLoading(true)
     try {
-      // Simulate authentication - replace with actual API call
-      const mockUser = {
-        id: "user_" + Date.now(),
-        username: formData.email.split('@')[0],
-        email: formData.email,
-        bio: "",
-        avatarUrl: "",
-        followersCount: 0,
-        followingCount: 0,
-        createdAt: new Date()
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: formData.email.split('@')[0], // Use email prefix as username
+          password: formData.password
+        })
+      })
+
+      if (response.ok) {
+        const user = await response.json()
+        login?.(user)
+        router.push("/dashboard")
+      } else {
+        const error = await response.json()
+        if (error.error === 'Invalid username or password') {
+          setErrors({ password: 'Wrong password or username' })
+        } else {
+          setErrors({ email: error.error })
+        }
       }
-      
-      login?.(mockUser)
-      router.push("/dashboard")
     } catch (error) {
       console.error("Login error:", error)
       setErrors({ email: "Login failed. Please try again." })

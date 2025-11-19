@@ -84,9 +84,10 @@ export async function GET(request: NextRequest) {
     
     console.log('[API] Query params:', { page, limit, search, tag });
 
-    // Get all published posts from Firebase
-    console.log('[API] Calling db.getPosts...');
-    let result = await db.getPosts(page, limit);
+    // Get posts from Firebase (include drafts for dashboard)
+    const includeDrafts = searchParams.get('includeDrafts') === 'true';
+    console.log('[API] Calling db.getPosts with includeDrafts:', includeDrafts);
+    let result = await db.getPosts(page, limit, includeDrafts);
     console.log('[API] Raw result from db.getPosts:', result);
 
     // Filter by search if provided
