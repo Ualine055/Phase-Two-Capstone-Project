@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Heart, MessageCircle, Share2, BookOpen, Zap } from "lucide-react"
 import { Header } from "@/components/header"
@@ -8,14 +8,15 @@ import { Footer } from "@/components/footer"
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userPosts, setUserPosts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Mock data for featured posts
-  const featuredPosts = [
+  // Original mock stories
+  const mockPosts = [
     {
-      id: 1,
+      id: "mock-1",
       title: "Getting Started with Next.js 16: A Comprehensive Guide",
-      excerpt:
-        "Learn how to build modern web applications with Next.js 16, featuring Turbopack, React Server Components, and more.",
+      excerpt: "Learn how to build modern web applications with Next.js 16, featuring Turbopack, React Server Components, and more.",
       author: "Sarah Chen",
       avatar: "/abstract-profile.png",
       date: "2 hours ago",
@@ -26,10 +27,9 @@ export default function Home() {
       image: "/nextjs-logo.png",
     },
     {
-      id: 2,
+      id: "mock-2",
       title: "The Art of Minimalist Design in 2025",
-      excerpt:
-        "Explore how minimalism is reshaping digital design, creating experiences that are both beautiful and functional.",
+      excerpt: "Explore how minimalism is reshaping digital design, creating experiences that are both beautiful and functional.",
       author: "Marcus Rivera",
       avatar: "/abstract-user-profile.png",
       date: "4 hours ago",
@@ -40,10 +40,9 @@ export default function Home() {
       image: "/abstract-design-elements.png",
     },
     {
-      id: 3,
+      id: "mock-3",
       title: "TypeScript Best Practices for Enterprise Applications",
-      excerpt:
-        "Master advanced TypeScript patterns and practices to write scalable, maintainable code in large-scale projects.",
+      excerpt: "Master advanced TypeScript patterns and practices to write scalable, maintainable code in large-scale projects.",
       author: "Emma Johnson",
       avatar: "/abstract-geometric-profile.png",
       date: "6 hours ago",
@@ -54,6 +53,38 @@ export default function Home() {
       image: "/typescript-logo.png",
     },
   ]
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        console.log('Fetching user posts...')
+        const response = await fetch('/api/posts?limit=10')
+        console.log('API Response status:', response.status)
+        console.log('API Response ok:', response.ok)
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log('Full API response:', data)
+          console.log('User posts fetched:', data.posts)
+          console.log('Number of posts:', data.posts?.length || 0)
+          setUserPosts(data.posts || [])
+        } else {
+          const errorText = await response.text()
+          console.error('Failed to fetch posts:', response.status, errorText)
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPosts()
+  }, [])
+
+  // Combine mock posts with user posts
+  const allPosts = [...mockPosts, ...userPosts]
+  console.log('All posts to display:', allPosts.length, allPosts)
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -120,50 +151,96 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-foreground mb-12">Featured Stories</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredPosts.map((post) => (
-              <Link key={post.id} href={`/post/${post.id}`}>
-                <article className="group cursor-pointer h-full">
-                  <div className="relative overflow-hidden rounded-xl mb-4 bg-muted h-40">
-                    <img
-                      src={post.image || "/placeholder.svg"}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-3 right-3 bg-accent/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-accent-foreground">
-                      {post.category}
+            {console.log('Rendering posts:', allPosts.length)}
+            {allPosts.map((post) => {
+              const isMockPost = post.id.toString().startsWith('mock-')
+              return (
+                <Link key={post.id} href={`/post/${post.id}`}>
+                  <article className="group cursor-pointer h-full">
+                    <div className="relative overflow-hidden rounded-xl mb-4 bg-muted h-40">
+                      {isMockPost ? (
+                        <img
+                          src={post.image || "/placeholder.svg"}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : post.imageUrl ? (
+                        <img
+                          src={post.imageUrl}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                          <BookOpen size={32} className="text-primary/50" />
+                        </div>
+                      )}
+                      <div className="absolute top-3 right-3 bg-accent/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-accent-foreground">
+                        {isMockPost ? post.category : (post.tags?.[0] || 'Story')}
+                      </div>
                     </div>
-                  </div>
 
-                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
+                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
 
-                  <p className="text-foreground/70 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
+                    <p className="text-foreground/70 text-sm mb-4 line-clamp-2">
+                      {post.excerpt || 'Click to read this story...'}
+                    </p>
 
-                  <div className="flex items-center gap-3 mb-4">
-                    <img src={post.avatar || "/placeholder.svg"} alt={post.author} className="w-8 h-8 rounded-full" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground">{post.author}</p>
-                      <p className="text-xs text-foreground/50">{post.date}</p>
+                    <div className="flex items-center gap-3 mb-4">
+                      {isMockPost ? (
+                        <img src={post.avatar || "/placeholder.svg"} alt={post.author} className="w-8 h-8 rounded-full" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                          <span className="text-xs font-semibold text-primary">
+                            {post.userId?.charAt(0)?.toUpperCase() || 'A'}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">
+                          {isMockPost ? post.author : 'Author'}
+                        </p>
+                        <p className="text-xs text-foreground/50">
+                          {isMockPost ? post.date : (post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString() : 'Recently')}
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-border text-foreground/60 text-sm">
-                    <span>{post.readTime}</span>
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        <Heart size={16} />
-                        {post.likes}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MessageCircle size={16} />
-                        {post.comments}
-                      </span>
+                    <div className="flex items-center justify-between pt-3 border-t border-border text-foreground/60 text-sm">
+                      <span>{isMockPost ? post.readTime : '5 min read'}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <Heart size={16} />
+                          {isMockPost ? post.likes : (post.viewsCount || 0)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageCircle size={16} />
+                          {isMockPost ? post.comments : 0}
+                        </span>
+                      </div>
                     </div>
+                  </article>
+                </Link>
+              )
+            })}
+            
+            {console.log('Loading state:', loading)}
+            {loading && (
+              // Loading skeleton for user posts
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={`loading-${i}`} className="animate-pulse">
+                  <div className="bg-muted h-40 rounded-xl mb-4"></div>
+                  <div className="bg-muted h-6 rounded mb-2"></div>
+                  <div className="bg-muted h-4 rounded mb-4"></div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-muted w-8 h-8 rounded-full"></div>
+                    <div className="bg-muted h-4 rounded flex-1"></div>
                   </div>
-                </article>
-              </Link>
-            ))}
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
