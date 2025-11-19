@@ -110,6 +110,8 @@ npm run type-check   # TypeScript type checking
 
 ### Deploy to Vercel
 
+[view live deploymnet](phase-two-capstone-project-orcin.vercel.app)
+
 1. Push to GitHub
 2. Connect project to Vercel
 3. Set environment variables
@@ -179,13 +181,6 @@ Strict mode enabled by default:
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open Pull Request
 
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-For issues and questions, please open an issue on GitHub or visit [your-support-url].
 
 ## 🎯 Usage
 
@@ -218,12 +213,6 @@ The app is ready for deployment on Vercel:
 - **Tailwind CSS** - Utility-first CSS framework
 - **Lucide React** - Beautiful icons
 - **Recharts** - Dashboard analytics charts
-
----
-
-## 📝 License
-
-MIT License - feel free to use this project for learning and development.
 
 ---
 
