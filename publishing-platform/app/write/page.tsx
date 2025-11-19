@@ -113,7 +113,8 @@ export default function WritePage() {
       }
     } catch (err) {
       console.error("Network/Parse Error:", err)
-      alert(`Failed to publish story: ${err.message}`)
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      alert(`Failed to publish story: ${errorMessage}`)
     } finally {
       setLoading(false)
     }

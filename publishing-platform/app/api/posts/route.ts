@@ -111,9 +111,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('[API] Error fetching posts:', error);
-    console.error('[API] Error stack:', error.stack);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: `Failed to fetch posts: ${error.message}` },
+      { error: `Failed to fetch posts: ${errorMessage}` },
       { status: 500 }
     );
   }
@@ -169,9 +169,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newPost, { status: 201 });
   } catch (error) {
     console.error('[API] Error creating post:', error);
-    console.error('[API] Error stack:', error.stack);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: `Failed to create post: ${error.message}` },
+      { error: `Failed to create post: ${errorMessage}` },
       { status: 500 }
     );
   }

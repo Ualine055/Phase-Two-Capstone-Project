@@ -31,9 +31,9 @@ export async function PUT(
     // Update the post status
     const updatedPost = await db.updatePost(
       postId,
-      currentPost.title,
-      currentPost.excerpt || '',
-      currentPost.content,
+      (currentPost as any).title,
+      (currentPost as any).excerpt || '',
+      (currentPost as any).content,
       status
     );
     
