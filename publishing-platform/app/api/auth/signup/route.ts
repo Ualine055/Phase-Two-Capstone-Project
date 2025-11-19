@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const newUser = await db.createUser(username, email, passwordHash);
 
     // Return user without password
-    const { passwordHash: _, ...userWithoutPassword } = newUser;
+    const { passwordHash: _, ...userWithoutPassword } = newUser as any;
     
     return NextResponse.json(userWithoutPassword, { status: 201 });
   } catch (error) {

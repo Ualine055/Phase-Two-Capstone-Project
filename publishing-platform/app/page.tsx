@@ -151,7 +151,6 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-foreground mb-12">Featured Stories</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {console.log('Rendering posts:', allPosts.length)}
             {allPosts.map((post) => {
               const isMockPost = post.id.toString().startsWith('mock-')
               return (
@@ -226,7 +225,6 @@ export default function Home() {
               )
             })}
             
-            {console.log('Loading state:', loading)}
             {loading && (
               // Loading skeleton for user posts
               Array.from({ length: 3 }).map((_, i) => (

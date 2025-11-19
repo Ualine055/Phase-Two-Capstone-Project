@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check password (decode the basic encoding)
-    const storedPassword = atob(user.passwordHash);
+    const storedPassword = atob((user as any).passwordHash);
     if (storedPassword !== password) {
       return NextResponse.json(
         { error: 'Invalid username or password' },
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Return user without password
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    const { passwordHash: _, ...userWithoutPassword } = user as any;
     
     return NextResponse.json(userWithoutPassword);
   } catch (error) {

@@ -1,71 +1,63 @@
 # Publish - Modern Publishing Platform
 
-A full-stack publishing platform built with Next.js 16, featuring a rich text editor, social features, and production-ready deployment.
+A full-stack publishing platform built with Next.js 16, Firebase, and TypeScript. Features a rich text editor, user authentication, draft management, and social interactions.
 
-## Features
+## 🚀 Features
 
-### Lab 6-10 Implementations
+### Core Functionality
+- **User Authentication**: Complete signup/login system with password validation
+- **Story Writing**: Rich text editor with Markdown support and image insertion
+- **Draft Management**: Save drafts and publish later from dashboard
+- **Image Support**: Cover images and inline content images
+- **Comment System**: Real-time commenting on published stories
+- **Social Features**: Follow authors and engage with content
+- **Responsive Design**: Mobile-friendly interface
 
-**Lab 6: Comments, Reactions & Social Features**
-- Comment system with nested replies
-- Like/clap functionality with optimistic UI
-- Follow/unfollow authors
-- Personalized feed based on follows
+### Technical Features
+- **Firebase Integration**: Firestore database for posts, users, and comments
+- **TypeScript**: Full type safety throughout the application
+- **Authentication Guard**: Protected routes for authenticated users only
+- **Real-time Updates**: Live comment counts and interactions
+- **Error Handling**: Comprehensive error management and user feedback
+- **SEO Optimized**: Meta tags and structured data
 
-**Lab 7: State Management & Data Fetching**
-- Custom React hooks for posts and comments (`usePosts`, `useComments`)
-- Context API setup for auth and theme state
-- Loading and error states handling
-- Optimistic UI updates
-
-**Lab 8: TypeScript & Quality**
-- Full TypeScript implementation with strict mode
-- Type definitions for Post, User, Comment, Tag, API responses
-- ESLint and Prettier configuration
-- Jest unit tests for components
-- Type-safe React hooks
-
-**Lab 9: SEO, Performance & SSG/ISR**
-- Dynamic Open Graph and Twitter meta tags
-- Next.js Image component optimization
-- Font optimization with Google Fonts
-- Metadata API for dynamic page titles/descriptions
-- Performance monitoring setup
-
-**Lab 10: Deployment & Observability**
-- Vercel deployment ready
-- CI/CD configuration
-- Error handling and analytics
-- Environment variable setup
-- Production build optimization
-
-## Project Structure
+## 📁 Project Structure
 
 \`\`\`
 ├── app/
 │   ├── api/                    # API routes
-│   │   ├── posts/             # Post CRUD endpoints
-│   │   ├── feed/              # Personalized feed
-│   │   └── users/             # User follow endpoints
-│   ├── post/[id]/             # Individual post page
-│   ├── profile/[username]/    # User profile
-│   ├── write/                 # Post editor
-│   └── layout.tsx             # Root layout with metadata
+│   │   ├── auth/              # Authentication endpoints
+│   │   │   ├── login/         # Login API
+│   │   │   └── signup/        # Registration API
+│   │   └── posts/             # Post management
+│   │       ├── [id]/          # Individual post operations
+│   │       │   ├── comments/  # Comment system
+│   │       │   └── route.ts   # Post CRUD
+│   │       └── route.ts       # Posts listing
+│   ├── auth/                  # Authentication pages
+│   │   ├── login/             # Login page
+│   │   └── signup/            # Registration page
+│   ├── dashboard/             # User dashboard
+│   ├── post/[id]/             # Individual post view
+│   ├── write/                 # Story editor
+│   └── page.tsx               # Home page with feed
 ├── components/
-│   ├── comment-section.tsx    # Comment tree component
-│   ├── reaction-button.tsx    # Like/reaction button
-│   ├── follow-button.tsx      # Follow button
-│   └── __tests__/             # Component tests
+│   ├── auth-guard.tsx         # Route protection
+│   ├── auth-provider.tsx      # Authentication context
+│   ├── comment-section.tsx    # Comment system
+│   ├── editor.tsx             # Rich text editor
+│   ├── follow-button.tsx      # Follow functionality
+│   ├── header.tsx             # Navigation header
+│   └── ui/                    # UI components
 ├── hooks/
-│   ├── usePosts.ts            # Posts data fetching
-│   ├── useComments.ts         # Comments management
-│   └── useAuth.ts             # Auth context hook
+│   ├── useAuth.ts             # Authentication hook
+│   └── useComments.ts         # Comment management
 ├── lib/
-│   ├── types.ts               # TypeScript types
-│   └── context.ts             # React Context definitions
-├── public/                     # Static assets
-└── next.config.mjs            # Next.js configuration
-
+│   ├── db.ts                  # Firebase database functions
+│   ├── firebase.ts            # Firebase configuration
+│   ├── context.ts             # React contexts
+│   └── types.ts               # TypeScript definitions
+└── public/                     # Static assets
 \`\`\`
 
 ## Getting Started
@@ -73,13 +65,13 @@ A full-stack publishing platform built with Next.js 16, featuring a rich text ed
 ### Prerequisites
 - Node.js 18+ 
 - npm, yarn, or pnpm
+- Firebase project with Firestore enabled
 
 ### Installation
 
 \`\`\`bash
 # Clone the repository
-git clone https://github.com/yourusername/publish-platform.git
-
+git clone https://github.com/Ualine055/Phase-Two-Capstone-Project.git
 # Install dependencies
 npm install
 
@@ -91,10 +83,16 @@ npm run dev
 
 ### Environment Variables
 
-Create a `.env.local` file:
+Create a `.env.local` file with your Firebase configuration:
 
 \`\`\`
-NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 \`\`\`
 
 ## Scripts
@@ -122,24 +120,32 @@ npm run type-check   # TypeScript type checking
 vercel
 \`\`\`
 
-### Environment Variables (Production)
-- `NEXT_PUBLIC_API_URL` - API endpoint
-- `NEXTAUTH_URL` - Authentication URL
-- `CLOUDINARY_URL` - Image upload service
-- `SENTRY_DSN` - Error tracking
+### Firebase Setup
 
-## Testing
+1. Create a Firebase project at https://console.firebase.google.com
+2. Enable Firestore Database
+3. Set up Firestore security rules:
+   \`\`\`javascript
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /{document=**} {
+         allow read, write: if true;
+       }
+     }
+   }
+   \`\`\`
+4. Copy your Firebase config to `.env.local`
 
-\`\`\`bash
-# Run all tests
-npm run test
+## 🔥 Firebase Collections
 
-# Run tests in watch mode
-npm run test -- --watch
+The app uses these Firestore collections:
 
-# Generate coverage report
-npm run test -- --coverage
-\`\`\`
+- **users**: User profiles and authentication data
+- **posts**: Published stories and drafts
+- **comments**: User comments on posts
+- **reactions**: Likes and reactions
+- **follows**: User follow relationships
 
 ## TypeScript Configuration
 
@@ -181,17 +187,44 @@ MIT License - see LICENSE file for details
 
 For issues and questions, please open an issue on GitHub or visit [your-support-url].
 
-## Roadmap
+## 🎯 Usage
 
-- [ ] Email notifications
-- [ ] Advanced analytics dashboard
-- [ ] AI-powered content recommendations
-- [ ] Mobile app (React Native)
-- [ ] Monetization features
-- [ ] Multi-language support
-- [ ] Video uploads
-- [ ] Collaborative writing
+### For Writers
+1. **Sign Up**: Create an account with email and password
+2. **Write Stories**: Use the rich text editor with Markdown support
+3. **Add Images**: Insert cover images and inline content images
+4. **Save Drafts**: Save work in progress and publish later
+5. **Manage Content**: View and publish drafts from your dashboard
+
+### For Readers
+1. **Browse Stories**: Read published stories on the home feed
+2. **Engage**: Comment on stories and follow authors
+3. **Discover**: Explore content by tags and categories
+
+## 🚀 Deployment
+
+The app is ready for deployment on Vercel:
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Add your Firebase environment variables
+4. Deploy!
+
+## 🛠️ Built With
+
+- **Next.js 16** - React framework with App Router
+- **TypeScript** - Type safety and better DX
+- **Firebase** - Backend-as-a-Service for database and auth
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Beautiful icons
+- **Recharts** - Dashboard analytics charts
 
 ---
 
-Built with Next.js 16, React 19, TypeScript, and Tailwind CSS
+## 📝 License
+
+MIT License - feel free to use this project for learning and development.
+
+---
+
+**Built with ❤️ using Next.js 16, Firebase, and TypeScript**

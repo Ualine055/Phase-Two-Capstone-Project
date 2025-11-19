@@ -8,7 +8,7 @@ import { Search, Heart, MessageCircle, Loader2 } from 'lucide-react'
 
 export default function SearchPage() {
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState([])
+  const [results, setResults] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState("all")
 
