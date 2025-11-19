@@ -3,26 +3,83 @@
 import { useState } from "react"
 import { Header } from "@/components/header"
 import { Editor } from "@/components/editor"
+import { AuthGuard } from "@/components/auth-guard"
+import { useAuth } from "@/hooks/useAuth"
 import { Save, Eye, Clock, Tag } from "lucide-react"
+import * as db from "@/lib/db"
 
 export default function WritePage() {
+  const { user } = useAuth()
   const [title, setTitle] = useState("")
   const [excerpt, setExcerpt] = useState("")
   const [content, setContent] = useState("")
   const [tags, setTags] = useState("")
   const [isPreview, setIsPreview] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleSaveDraft = () => {
-    console.log("Saving draft...")
+  const handleSaveDraft = async () => {
+    if (!user?.id || (!title.trim() && !content.trim())) {
+      alert("Cannot save empty draft.")
+      return
+    }
+
+    setLoading(true)
+    try {
+      const post = await db.createPost(
+        user.id,
+        title,
+        excerpt,
+        content,
+        tags.split(",").map(tag => tag.trim()).filter(tag => tag)
+      )
+      console.log("Draft saved with ID:", post.id)
+      alert("Draft saved successfully!")
+    } catch (err) {
+      console.error("Error saving draft:", err)
+      alert("Failed to save draft.")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handlePublish = () => {
-    console.log("Publishing...")
+  const handlePublish = async () => {
+    if (!user?.id || !title.trim() || !content.trim()) {
+      alert("Title and content cannot be empty.")
+      return
+    }
+
+    setLoading(true)
+    try {
+      const post = await db.createPost(
+        user.id,
+        title,
+        excerpt,
+        content,
+        tags.split(",").map(tag => tag.trim()).filter(tag => tag)
+      )
+      
+      // Update post status to published
+      await db.updatePost(post.id, title, excerpt, content, "published")
+      
+      console.log("Published with ID:", post.id)
+      alert("Story published successfully!")
+      // Clear form after publishing
+      setTitle("")
+      setExcerpt("")
+      setContent("")
+      setTags("")
+    } catch (err) {
+      console.error("Error publishing story:", err)
+      alert("Failed to publish story.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header isAuthenticated={true} />
+    <AuthGuard>
+      <div className="min-h-screen bg-background">
+        <Header isAuthenticated={true} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Top Bar */}
@@ -34,7 +91,8 @@ export default function WritePage() {
           <div className="flex gap-3">
             <button
               onClick={handleSaveDraft}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors"
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors disabled:opacity-50"
             >
               <Save size={18} />
               <span className="hidden sm:inline">Save Draft</span>
@@ -48,7 +106,8 @@ export default function WritePage() {
             </button>
             <button
               onClick={handlePublish}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow"
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow disabled:opacity-50"
             >
               Publish
             </button>
@@ -110,7 +169,8 @@ export default function WritePage() {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   )
 }

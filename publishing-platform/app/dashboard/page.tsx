@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { AuthGuard } from "@/components/auth-guard"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
 import { BookOpen, Eye, Heart, MessageCircle, TrendingUp } from "lucide-react"
 
@@ -35,8 +36,9 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header isAuthenticated={true} />
+    <AuthGuard>
+      <div className="flex flex-col min-h-screen">
+        <Header isAuthenticated={true} />
 
       <div className="flex-1 bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -193,7 +195,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </AuthGuard>
   )
 }

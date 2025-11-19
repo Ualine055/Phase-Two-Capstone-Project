@@ -17,7 +17,7 @@ export function Header({ isAuthenticated }: HeaderProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary text-indigo-800">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center bg-indigo-800 text-white">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white bg-indigo-800">
               <BookOpen size={20} />
             </div>
             <span className="hidden sm:inline">Publish</span>
