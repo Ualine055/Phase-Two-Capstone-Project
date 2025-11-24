@@ -91,33 +91,32 @@ export function CommentSection({
                         : 'Just now'}
                     </p>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => onDeleteComment(comment.id)}
-                    className="p-1 rounded hover:bg-muted text-foreground/60 hover:text-foreground"
+                    className="h-8 w-8"
                   >
                     <Trash2 size={16} />
-                  </button>
+                  </Button>
                 </div>
                 <p className="text-foreground/80 mb-3">{comment.content}</p>
                 <div className="flex items-center gap-4 text-sm">
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleCommentLike(comment.id)}
-                    className={`font-semibold transition-colors ${
-                      likedComments.has(comment.id)
-                        ? 'text-accent'
-                        : 'text-foreground/60 hover:text-foreground'
-                    }`}
+                    className={likedComments.has(comment.id) ? 'text-red-600' : ''}
                   >
                     <Heart
                       size={16}
-                      className="inline mr-1"
                       fill={likedComments.has(comment.id) ? 'currentColor' : 'none'}
                     />
                     {comment.likes}
-                  </button>
-                  <button className="text-primary hover:underline font-semibold">
+                  </Button>
+                  <Button variant="link" size="sm">
                     Reply ({comment.replies})
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

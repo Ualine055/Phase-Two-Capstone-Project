@@ -1,74 +1,56 @@
-import { NextRequest, NextResponse } from 'next/server';
-import * as db from '@/lib/db';
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id: postId } = await params;
-    const body = await request.json();
-    const { status } = body;
-    
-    console.log('[API] Updating post status:', postId, 'to', status);
-    
-    if (!status) {
-      return NextResponse.json(
-        { error: 'Status is required' },
-        { status: 400 }
-      );
-    }
-    
-    // Get the current post to preserve other fields (include drafts)
-    const currentPost = await db.getPostById(postId, true);
-    if (!currentPost) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
-    }
-    
-    // Update the post status
-    const updatedPost = await db.updatePost(
-      postId,
-      (currentPost as any).title,
-      (currentPost as any).excerpt || '',
-      (currentPost as any).content,
-      status
-    );
-    
-    console.log('[API] Post status updated:', updatedPost);
-    return NextResponse.json(updatedPost);
-  } catch (error) {
-    console.error('[API] Error updating post:', error);
-    return NextResponse.json(
-      { error: 'Failed to update post' },
-      { status: 500 }
-    );
-  }
-}
+import { NextRequest, NextResponse } from 'next/server'
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: postId } = await params;
-    const post = await db.getPostById(postId, true);
+    const { id } = await params
+    const postRef = doc(db, 'posts', id)
+    const postDoc = await getDoc(postRef)
     
-    if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
+    if (!postDoc.exists()) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
-    
-    return NextResponse.json(post);
+
+    return NextResponse.json({ id: postDoc.id, ...postDoc.data() })
   } catch (error) {
-    console.error('[API] Error fetching post:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch post' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const updates = await request.json()
+    
+    const postRef = doc(db, 'posts', id)
+    await updateDoc(postRef, updates)
+    
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error updating post:', error)
+    return NextResponse.json({ error: 'Failed to update post' }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const postRef = doc(db, 'posts', id)
+    await deleteDoc(postRef)
+    
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting post:', error)
+    return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 })
   }
 }

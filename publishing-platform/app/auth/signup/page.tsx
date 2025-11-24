@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { Eye, EyeOff, BookOpen } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { Button } from "@/components/ui/button"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -151,13 +152,9 @@ export default function SignUpPage() {
               {errors.confirmPassword && <p className="text-destructive text-sm mt-1">{errors.confirmPassword}</p>}
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full mt-6 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow disabled:opacity-50"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full mt-6">
               {isLoading ? "Creating Account..." : "Create Account"}
-            </button>
+            </Button>
           </form>
 
           <p className="text-center text-foreground/70 mt-6">

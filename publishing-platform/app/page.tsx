@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Heart, MessageCircle, Share2, BookOpen, Zap } from "lucide-react"
+import { Heart, MessageCircle, Share2, BookOpen, Zap, PenTool, Compass } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { Button } from "@/components/ui/button"
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -82,8 +83,19 @@ export default function Home() {
     fetchPosts()
   }, [])
 
-  // Combine mock posts with user posts
-  const allPosts = [...mockPosts, ...userPosts]
+  // Default images for posts without cover images
+  const defaultImages = [
+    '/web-development-concept.png',
+    '/abstract-design-elements.png',
+    '/abstract-geometric-shapes.png',
+    '/remote-work-setup.png'
+  ]
+
+  // Combine mock posts with user posts and add default images
+  const allPosts = [...mockPosts, ...userPosts.map((post, index) => ({
+    ...post,
+    imageUrl: post.imageUrl || defaultImages[index % defaultImages.length]
+  }))]
   console.log('All posts to display:', allPosts.length, allPosts)
 
   return (
@@ -103,18 +115,18 @@ export default function Home() {
                 thinkers.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/auth/signup"
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-full bg-indigo-800 text-white font-semibold hover:shadow-lg transition-shadow"
-                >
-                  Start Writing
-                </Link>
-                <Link
-                  href="/explore"
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-full border-2 border-indigo-800 text-indigo-800 font-semibold hover:bg-indigo-800/5 transition-colors"
-                >
-                  Explore Stories
-                </Link>
+                <Button size="lg" asChild>
+                  <Link href="/auth/signup">
+                    <PenTool size={20} />
+                    Start Writing
+                  </Link>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <Link href="/explore">
+                    <Compass size={20} />
+                    Explore Stories
+                  </Link>
+                </Button>
               </div>
             </div>
             <div className="relative">
@@ -157,23 +169,22 @@ export default function Home() {
                 <Link key={post.id} href={`/post/${post.id}`}>
                   <article className="group cursor-pointer h-full">
                     <div className="relative overflow-hidden rounded-xl mb-4 bg-muted h-40">
-                      {isMockPost ? (
+                      {(isMockPost && post.image) || (!isMockPost && post.imageUrl) ? (
                         <img
-                          src={post.image || "/placeholder.svg"}
+                          src={isMockPost ? post.image : post.imageUrl}
                           alt={post.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                          }}
                         />
-                      ) : post.imageUrl ? (
-                        <img
-                          src={post.imageUrl}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                          <BookOpen size={32} className="text-primary/50" />
-                        </div>
-                      )}
+                      ) : null}
+                      <div className={`w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ${
+                        (isMockPost && post.image) || (!isMockPost && post.imageUrl) ? 'hidden' : ''
+                      }`}>
+                        <BookOpen size={32} className="text-primary/50" />
+                      </div>
                       <div className="absolute top-3 right-3 bg-accent/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-accent-foreground">
                         {isMockPost ? post.category : (post.tags?.[0] || 'Story')}
                       </div>

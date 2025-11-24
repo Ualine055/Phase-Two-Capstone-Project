@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Bold, Italic, List, LinkIcon, ImageIcon, Code, Heading2, Quote as Quotes } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface EditorProps {
   content: string
@@ -61,62 +62,30 @@ export function Editor({ content, onChange }: EditorProps) {
           isFocused ? "border-primary bg-primary/5" : "border-border bg-muted/30"
         }`}
       >
-        <button
-          onClick={() => insertMarkdown("**", "**")}
-          className="p-2 rounded hover:bg-muted text-foreground/70 hover:text-foreground transition-colors"
-          title="Bold"
-        >
+        <Button variant="ghost" size="icon" onClick={() => insertMarkdown("**", "**")} title="Bold">
           <Bold size={18} />
-        </button>
-        <button
-          onClick={() => insertMarkdown("*", "*")}
-          className="p-2 rounded hover:bg-muted text-foreground/70 hover:text-foreground transition-colors"
-          title="Italic"
-        >
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => insertMarkdown("*", "*")} title="Italic">
           <Italic size={18} />
-        </button>
-        <button
-          onClick={() => insertMarkdown("## ", "\n")}
-          className="p-2 rounded hover:bg-muted text-foreground/70 hover:text-foreground transition-colors"
-          title="Heading"
-        >
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => insertMarkdown("## ", "\n")} title="Heading">
           <Heading2 size={18} />
-        </button>
-        <button
-          onClick={() => insertMarkdown("- ")}
-          className="p-2 rounded hover:bg-muted text-foreground/70 hover:text-foreground transition-colors"
-          title="List"
-        >
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => insertMarkdown("- ")} title="List">
           <List size={18} />
-        </button>
-        <button
-          onClick={() => insertMarkdown("[", "](url)")}
-          className="p-2 rounded hover:bg-muted text-foreground/70 hover:text-foreground transition-colors"
-          title="Link"
-        >
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => insertMarkdown("[", "](url)")} title="Link">
           <LinkIcon size={18} />
-        </button>
-        <button
-          onClick={() => insertMarkdown("```\n", "\n```")}
-          className="p-2 rounded hover:bg-muted text-foreground/70 hover:text-foreground transition-colors"
-          title="Code"
-        >
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => insertMarkdown("```\n", "\n```")} title="Code">
           <Code size={18} />
-        </button>
-        <button
-          onClick={() => insertMarkdown("> ")}
-          className="p-2 rounded hover:bg-muted text-foreground/70 hover:text-foreground transition-colors"
-          title="Quote"
-        >
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => insertMarkdown("> ")} title="Quote">
           <Quotes size={18} />
-        </button>
-        <button
-          onClick={() => setShowImageDialog(true)}
-          className="p-2 rounded hover:bg-muted text-foreground/70 hover:text-foreground transition-colors ml-auto"
-          title="Insert Image"
-        >
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => setShowImageDialog(true)} title="Insert Image" className="ml-auto">
           <ImageIcon size={18} />
-        </button>
+        </Button>
       </div>
 
       {/* Text Area */}
@@ -178,23 +147,24 @@ export function Editor({ content, onChange }: EditorProps) {
             </div>
             
             <div className="flex gap-3 mt-6">
-              <button
+              <Button
+                variant="outline"
+                className="flex-1"
                 onClick={() => {
                   setShowImageDialog(false)
                   setImageUrl('')
                   setImageAlt('')
                 }}
-                className="flex-1 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                className="flex-1"
                 onClick={insertImage}
                 disabled={!imageUrl.trim()}
-                className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow disabled:opacity-50"
               >
                 Insert Image
-              </button>
+              </Button>
             </div>
           </div>
         </div>

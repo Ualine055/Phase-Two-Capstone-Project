@@ -4,8 +4,9 @@ import { useState } from "react"
 import { Header } from "@/components/header"
 import { Editor } from "@/components/editor"
 import { AuthGuard } from "@/components/auth-guard"
+import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
-import { Save, Eye, Clock, Tag } from "lucide-react"
+import { Save, Eye, Clock, Tag, Send } from "lucide-react"
 
 export default function WritePage() {
   const { user } = useAuth()
@@ -32,6 +33,8 @@ export default function WritePage() {
         },
         body: JSON.stringify({
           userId: user.id,
+          author: user.username || user.email || 'Anonymous',
+          authorId: user.id,
           title,
           excerpt,
           content,
@@ -68,6 +71,8 @@ export default function WritePage() {
     try {
       const requestBody = {
         userId: user.id,
+        author: user.username || user.email || 'Anonymous',
+        authorId: user.id,
         title,
         excerpt,
         content,
@@ -133,28 +138,28 @@ export default function WritePage() {
             <p className="text-foreground/70 text-sm mt-1">Draft • Last saved 2 minutes ago</p>
           </div>
           <div className="flex gap-3">
-            <button
+            <Button
+              variant="outline"
               onClick={handleSaveDraft}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors disabled:opacity-50"
             >
               <Save size={18} />
               <span className="hidden sm:inline">Save Draft</span>
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => setIsPreview(!isPreview)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors"
             >
               <Eye size={18} />
               <span className="hidden sm:inline">{isPreview ? "Edit" : "Preview"}</span>
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handlePublish}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow disabled:opacity-50"
             >
+              <Send size={18} />
               Publish
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -212,11 +217,33 @@ export default function WritePage() {
                 <Eye size={16} />
                 Cover Image
               </label>
+              
+              {/* Quick image selection */}
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {[
+                  '/web-development-concept.png',
+                  '/abstract-design-elements.png', 
+                  '/abstract-geometric-shapes.png',
+                  '/remote-work-setup.png'
+                ].map((img, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setImageUrl(img)}
+                    className={`relative h-16 rounded-lg border-2 overflow-hidden transition-all ${
+                      imageUrl === img ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <img src={img} alt={`Option ${index + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+              
               <input
                 type="url"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="Add image URL (e.g., https://example.com/image.jpg)"
+                placeholder="Or add custom image URL (e.g., https://example.com/image.jpg)"
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               {imageUrl && (

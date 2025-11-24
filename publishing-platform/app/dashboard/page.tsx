@@ -5,12 +5,15 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { AuthGuard } from "@/components/auth-guard"
+import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
+import { usePosts } from "@/hooks/usePosts"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
-import { BookOpen, Eye, Heart, MessageCircle, TrendingUp } from "lucide-react"
+import { BookOpen, Eye, Heart, MessageCircle, TrendingUp, Trash2, Plus } from "lucide-react"
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  const { deletePost } = usePosts()
   const [activeTab, setActiveTab] = useState("overview")
   const [userPosts, setUserPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -34,6 +37,9 @@ export default function DashboardPage() {
           // }) || []
           
           console.log('[Dashboard] Filtered posts for user:', filteredPosts)
+          filteredPosts.forEach(post => {
+            console.log('[Dashboard] Post ID:', post.id, 'Title:', post.title)
+          })
           setUserPosts(filteredPosts)
         }
       } catch (error) {
@@ -70,6 +76,18 @@ export default function DashboardPage() {
     }
   }
 
+  const handleDeletePost = async (postId: string, title: string) => {
+    if (confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+      const success = await deletePost(postId)
+      if (success) {
+        setUserPosts(userPosts.filter(post => post.id !== postId))
+        alert('Post deleted successfully!')
+      } else {
+        alert('Failed to delete post')
+      }
+    }
+  }
+
   const stats = [
     { label: "Total Views", value: "12,450", change: "+12%", icon: Eye },
     { label: "Total Likes", value: "3,240", change: "+8%", icon: Heart },
@@ -102,12 +120,12 @@ export default function DashboardPage() {
               <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
               <p className="text-foreground/70 mt-1">Welcome back! Here's your publishing stats.</p>
             </div>
-            <Link
-              href="/write"
-              className="px-6 py-2 rounded-full bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow"
-            >
-              New Story
-            </Link>
+            <Button asChild>
+              <Link href="/write">
+                <Plus size={16} />
+                New Story
+              </Link>
+            </Button>
           </div>
 
           {/* Stats Grid */}
@@ -240,20 +258,29 @@ export default function DashboardPage() {
                           <td className="px-6 py-4">
                             <div className="flex gap-2">
                               {post.status === 'draft' ? (
-                                <button
+                                <Button
+                                  size="sm"
                                   onClick={() => handlePublishDraft(post.id, post.title, post.excerpt, post.content)}
-                                  className="px-3 py-1 rounded bg-primary text-primary-foreground text-xs font-semibold hover:shadow-lg transition-shadow"
                                 >
                                   Publish
-                                </button>
+                                </Button>
                               ) : (
-                                <Link href={`/post/${post.id}`} className="text-primary hover:underline text-sm font-semibold">
-                                  View
-                                </Link>
+                                <Button variant="link" size="sm" asChild>
+                                  <Link href={`/post/${post.id}`} onClick={() => console.log('Navigating to post ID:', post.id)}>View</Link>
+                                </Button>
                               )}
-                              <Link href={`/write?edit=${post.id}`} className="text-foreground/60 hover:text-foreground text-sm font-semibold">
-                                Edit
-                              </Link>
+                              <Button variant="ghost" size="sm" asChild>
+                                <Link href={`/write?edit=${post.id}`}>Edit</Link>
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeletePost(post.id, post.title)}
+                                title="Delete post"
+                              >
+                                <Trash2 size={14} />
+                                Delete
+                              </Button>
                             </div>
                           </td>
                         </tr>
@@ -265,12 +292,12 @@ export default function DashboardPage() {
                     <BookOpen size={48} className="mx-auto mb-4 text-foreground/30" />
                     <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
                     <p className="text-foreground/70 mb-6">Start writing your first story to see it here.</p>
-                    <Link
-                      href="/write"
-                      className="inline-flex items-center px-6 py-2 rounded-full bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow"
-                    >
-                      Write Your First Story
-                    </Link>
+                    <Button asChild>
+                      <Link href="/write">
+                        <Plus size={16} />
+                        Write Your First Story
+                      </Link>
+                    </Button>
                   </div>
                 )}
               </div>

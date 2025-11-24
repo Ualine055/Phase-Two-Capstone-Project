@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { Eye, EyeOff, BookOpen } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function LoginPage() {
@@ -128,13 +129,9 @@ export default function LoginPage() {
               {errors.password && <p className="text-destructive text-sm mt-1">{errors.password}</p>}
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full mt-6 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow disabled:opacity-50"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full mt-6">
               {isLoading ? "Signing In..." : "Sign In"}
-            </button>
+            </Button>
           </form>
 
           <div className="relative my-6">
@@ -146,9 +143,9 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button className="w-full px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors font-semibold">
+          <Button variant="outline" className="w-full">
             Continue with Google
-          </button>
+          </Button>
 
           <p className="text-center text-foreground/70 mt-6">
             Don't have an account?{" "}

@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log('[API] Request body:', body);
-    const { userId, title, excerpt, content, tags, imageUrl, status } = body;
+    const { userId, author, authorId, title, excerpt, content, tags, imageUrl, status } = body;
 
     if (!userId || !title || !content) {
       console.log('[API] Missing required fields:', { userId: !!userId, title: !!title, content: !!content });
@@ -154,7 +154,9 @@ export async function POST(request: NextRequest) {
       excerpt || '',
       content,
       Array.isArray(tags) ? tags : tags ? tags.split(',') : [],
-      imageUrl || ''
+      imageUrl || '',
+      author,
+      authorId
     );
     console.log('[API] Post created:', newPost);
 

@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { Search, Menu, X, BookOpen } from "lucide-react"
+import { Search, Menu, X, BookOpen, PenTool } from "lucide-react"
 import { useState } from "react"
+import { Button } from "@/components/ui/button"
 
 interface HeaderProps {
   isAuthenticated: boolean
@@ -48,32 +49,31 @@ export function Header({ isAuthenticated }: HeaderProps) {
                 <Link href="/dashboard" className="text-foreground/70 hover:text-foreground transition-colors">
                   Dashboard
                 </Link>
-                <Link
-                  href="/write"
-                  className="px-4 py-2 rounded-full bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow"
-                >
-                  Write
-                </Link>
+                <Button asChild>
+                  <Link href="/write">
+                    <PenTool size={16} />
+                    Write
+                  </Link>
+                </Button>
               </>
             ) : (
               <>
                 <Link href="/auth/login" className="text-foreground/70 hover:text-foreground transition-colors">
                   Sign In
                 </Link>
-                <Link
-                  href="/auth/signup"
-                  className="px-4 py-2 rounded-full  font-semibold hover:shadow-lg transition-shadow text-white bg-indigo-800"
-                >
-                  Get Started
-                </Link>
+                <Button asChild>
+                  <Link href="/auth/signup">
+                    Get Started
+                  </Link>
+                </Button>
               </>
             )}
           </nav>
 
           {/* Mobile Menu Button */}
-          <button className="md:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          </Button>
         </div>
 
         {/* Mobile Menu */}
@@ -99,24 +99,23 @@ export function Header({ isAuthenticated }: HeaderProps) {
                   <Link href="/dashboard" className="px-4 py-2 text-foreground/70 hover:text-foreground">
                     Dashboard
                   </Link>
-                  <Link
-                    href="/write"
-                    className="px-4 py-2 rounded-full bg-primary text-primary-foreground font-semibold"
-                  >
-                    Write
-                  </Link>
+                  <Button asChild className="justify-start">
+                    <Link href="/write">
+                      <PenTool size={16} />
+                      Write
+                    </Link>
+                  </Button>
                 </>
               ) : (
                 <>
                   <Link href="/auth/login" className="px-4 py-2 text-foreground/70 hover:text-foreground">
                     Sign In
                   </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="px-4 py-2 rounded-full bg-indigo-600 text-primary-foreground font-semibold"
-                  >
-                    Get Started
-                  </Link>
+                  <Button asChild className="justify-start">
+                    <Link href="/auth/signup">
+                      Get Started
+                    </Link>
+                  </Button>
                 </>
               )}
             </div>

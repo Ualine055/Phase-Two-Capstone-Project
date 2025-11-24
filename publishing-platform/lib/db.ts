@@ -85,9 +85,11 @@ export async function getPostById(id: string, includeDrafts: boolean = false) {
   return { id: docSnap.id, ...data };
 }
 
-export async function createPost(userId: string, title: string, excerpt: string, content: string, tags: string[], imageUrl?: string) {
+export async function createPost(userId: string, title: string, excerpt: string, content: string, tags: string[], imageUrl?: string, author?: string, authorId?: string) {
   const docRef = await addDoc(collection(db, 'posts'), {
     userId,
+    author: author || 'Anonymous',
+    authorId: authorId || userId,
     title,
     excerpt,
     content,

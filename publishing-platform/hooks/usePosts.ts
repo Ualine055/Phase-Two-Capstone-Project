@@ -60,5 +60,23 @@ export function usePosts() {
     }
   }, [posts])
 
-  return { posts, isLoading, error, fetchPosts, createPost }
+  const deletePost = useCallback(async (postId: string | number) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'DELETE',
+      })
+      if (!response.ok) throw new Error('Failed to delete post')
+      setPosts(posts.filter(post => post.id !== postId))
+      return true
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+      return false
+    } finally {
+      setIsLoading(false)
+    }
+  }, [posts])
+
+  return { posts, isLoading, error, fetchPosts, createPost, deletePost }
 }

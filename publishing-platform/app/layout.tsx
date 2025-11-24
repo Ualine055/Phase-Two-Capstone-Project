@@ -18,31 +18,46 @@ const robotoMono = Roboto_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Publish - Modern Publishing Platform for Writers",
+  title: {
+    default: "Publish - Modern Publishing Platform for Writers",
+    template: "%s | Publish"
+  },
   description: "Create, publish, and share amazing stories on our modern publishing platform. Join thousands of writers today.",
-  keywords: "publishing, writing, stories, blog, content creation",
+  keywords: ["publishing", "writing", "stories", "blog", "content creation", "medium", "writers", "articles"],
   authors: [{ name: "Publish Team" }],
   creator: "Publish",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://publish.example.com",
+    url: "https://phase-two-capstone-project-orcin.vercel.app",
     siteName: "Publish",
     title: "Publish - Modern Publishing Platform",
-    description: "Share your stories with the world",
+    description: "Share your stories with the world. Write, publish, and connect with readers.",
     images: [
       {
-        url: "https://publish.example.com/og-image.png",
+        url: "/creative-writing-hero.jpg",
         width: 1200,
         height: 630,
+        alt: "Publish - Modern Publishing Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Publish - Modern Publishing Platform",
-    description: "Share your stories with the world",
-    images: ["https://publish.example.com/og-image.png"],
+    description: "Share your stories with the world. Write, publish, and connect with readers.",
+    images: ["/creative-writing-hero.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 }
 

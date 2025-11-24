@@ -35,7 +35,7 @@ export interface Post {
   status: 'draft' | 'published'
   image?: string
   slug: string
-  likedBy?: string[]
+  likedBy: string[]
   savedBy?: string[]
 }
 
