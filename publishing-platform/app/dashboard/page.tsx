@@ -37,7 +37,7 @@ export default function DashboardPage() {
           // }) || []
           
           console.log('[Dashboard] Filtered posts for user:', filteredPosts)
-          filteredPosts.forEach(post => {
+          filteredPosts.forEach((post: any) => {
             console.log('[Dashboard] Post ID:', post.id, 'Title:', post.title)
           })
           setUserPosts(filteredPosts)
