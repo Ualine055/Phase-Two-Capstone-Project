@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Editor } from "@/components/editor"
 import { AuthGuard } from "@/components/auth-guard"
@@ -17,6 +17,39 @@ export default function WritePage() {
   const [imageUrl, setImageUrl] = useState("")
   const [isPreview, setIsPreview] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+
+  // Load post data if editing
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const editId = urlParams.get('edit')
+    
+    if (editId) {
+      setEditingPostId(editId)
+      setIsEditing(true)
+      loadPostForEditing(editId)
+    }
+  }, [])
+
+  const loadPostForEditing = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}`)
+      if (response.ok) {
+        const post = await response.json()
+        setTitle(post.title || '')
+        setExcerpt(post.excerpt || '')
+        setContent(post.content || '')
+        setTags(post.tags?.join(', ') || '')
+        setImageUrl(post.imageUrl || '')
+      } else {
+        alert('Failed to load post for editing')
+      }
+    } catch (error) {
+      console.error('Error loading post:', error)
+      alert('Error loading post for editing')
+    }
+  }
 
   const handleSaveDraft = async () => {
     if (!user?.id || (!title.trim() && !content.trim())) {
@@ -26,14 +59,17 @@ export default function WritePage() {
 
     setLoading(true)
     try {
-      const response = await fetch('/api/posts', {
-        method: 'POST',
+      const url = isEditing ? `/api/posts/${editingPostId}` : '/api/posts'
+      const method = isEditing ? 'PUT' : 'POST'
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           userId: user.id,
-          author: user.username || user.email || 'Anonymous',
+          author: user.username || user.email?.split('@')[0] || 'Anonymous',
           authorId: user.id,
           title,
           excerpt,
@@ -47,7 +83,11 @@ export default function WritePage() {
       if (response.ok) {
         const post = await response.json()
         console.log("Draft saved with ID:", post.id)
-        alert("Draft saved successfully!")
+        alert(isEditing ? "Draft updated successfully!" : "Draft saved successfully!")
+        if (!isEditing) {
+          setEditingPostId(post.id)
+          setIsEditing(true)
+        }
       } else {
         const error = await response.json()
         throw new Error(error.error || 'Failed to save draft')
@@ -69,9 +109,12 @@ export default function WritePage() {
     console.log("Publishing with user:", user)
     setLoading(true)
     try {
+      const url = isEditing ? `/api/posts/${editingPostId}` : '/api/posts'
+      const method = isEditing ? 'PUT' : 'POST'
+      
       const requestBody = {
         userId: user.id,
-        author: user.username || user.email || 'Anonymous',
+        author: user.username || user.email?.split('@')[0] || 'Anonymous',
         authorId: user.id,
         title,
         excerpt,
@@ -83,8 +126,8 @@ export default function WritePage() {
       
       console.log("Request body:", requestBody)
       
-      const response = await fetch('/api/posts', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -97,13 +140,16 @@ export default function WritePage() {
       if (response.ok) {
         const post = await response.json()
         console.log("Published with ID:", post.id)
-        alert("Story published successfully!")
-        // Clear form after publishing
-        setTitle("")
-        setExcerpt("")
-        setContent("")
-        setTags("")
-        setImageUrl("")
+        alert(isEditing ? "Story updated and published successfully!" : "Story published successfully!")
+        
+        if (!isEditing) {
+          // Clear form after publishing new post
+          setTitle("")
+          setExcerpt("")
+          setContent("")
+          setTags("")
+          setImageUrl("")
+        }
       } else {
         const errorText = await response.text()
         console.error("API Error Response:", errorText)
@@ -134,8 +180,12 @@ export default function WritePage() {
         {/* Top Bar */}
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Write New Story</h1>
-            <p className="text-foreground/70 text-sm mt-1">Draft • Last saved 2 minutes ago</p>
+            <h1 className="text-2xl font-bold text-foreground">
+              {isEditing ? 'Edit Story' : 'Write New Story'}
+            </h1>
+            <p className="text-foreground/70 text-sm mt-1">
+              {isEditing ? 'Editing existing post' : 'Draft • Last saved 2 minutes ago'}
+            </p>
           </div>
           <div className="flex gap-3">
             <Button
@@ -242,10 +292,32 @@ export default function WritePage() {
               <input
                 type="url"
                 value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="Or add custom image URL (e.g., https://example.com/image.jpg)"
+                onChange={(e) => {
+                  let url = e.target.value.trim()
+                  
+                  // Auto-convert common image page URLs to direct URLs
+                  if (url.includes('unsplash.com/photos/')) {
+                    const photoId = url.split('/photos/')[1]?.split('-').pop()
+                    if (photoId) {
+                      url = `https://images.unsplash.com/photo-${photoId}?w=800&h=600&fit=crop`
+                    }
+                  } else if (url.includes('imgur.com/') && !url.includes('i.imgur.com')) {
+                    // Convert imgur page to direct image
+                    const imageId = url.split('/').pop()
+                    url = `https://i.imgur.com/${imageId}.jpg`
+                  } else if (url.includes('reddit.com/') && url.includes('/comments/')) {
+                    // For Reddit posts, suggest using direct image links
+                    console.warn('Reddit post URLs may not work. Try right-clicking the image and copying the image address.')
+                  }
+                  
+                  setImageUrl(url)
+                }}
+                placeholder="Paste any image URL (direct links work best)"
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
+              <p className="text-xs text-foreground/60 mt-1">
+                💡 Tip: For best results, right-click on any image and select "Copy image address"
+              </p>
               {imageUrl && (
                 <div className="mt-3">
                   <img
@@ -253,7 +325,30 @@ export default function WritePage() {
                     alt="Cover preview"
                     className="w-full h-40 object-cover rounded-lg border border-border"
                     onError={(e) => {
+                      console.error('Image failed to load:', imageUrl)
                       e.currentTarget.style.display = 'none'
+                      
+                      // Create error message based on URL type
+                      let errorMessage = 'Failed to load image.'
+                      if (imageUrl.includes('instagram.com')) {
+                        errorMessage = 'Instagram images cannot be hotlinked. Try uploading to imgur.com first.'
+                      } else if (imageUrl.includes('facebook.com')) {
+                        errorMessage = 'Facebook images cannot be hotlinked. Try uploading to imgur.com first.'
+                      } else if (imageUrl.includes('pinterest.com')) {
+                        errorMessage = 'Pinterest images may be blocked. Try copying the direct image URL.'
+                      } else if (!imageUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                        errorMessage = 'URL may not be a direct image link. Try right-clicking the image and copying the image address.'
+                      } else {
+                        errorMessage = 'Image blocked by CORS policy or server restrictions.'
+                      }
+                      
+                      const errorDiv = document.createElement('div')
+                      errorDiv.className = 'w-full h-40 bg-red-50 border border-red-200 rounded-lg flex flex-col items-center justify-center text-red-600 text-sm p-4 text-center'
+                      errorDiv.innerHTML = `<div class="font-medium mb-1">⚠️ ${errorMessage}</div><div class="text-xs text-red-500">Try: imgur.com, picsum.photos, or direct .jpg/.png URLs</div>`
+                      e.currentTarget.parentNode?.appendChild(errorDiv)
+                    }}
+                    onLoad={() => {
+                      console.log('Image loaded successfully:', imageUrl)
                     }}
                   />
                 </div>

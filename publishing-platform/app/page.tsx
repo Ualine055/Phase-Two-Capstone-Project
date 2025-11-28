@@ -210,7 +210,7 @@ export default function Home() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground">
-                          {isMockPost ? post.author : 'Author'}
+                          {isMockPost ? post.author : (post.author || 'Author')}
                         </p>
                         <p className="text-xs text-foreground/50">
                           {isMockPost ? post.date : (post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString() : 'Recently')}
