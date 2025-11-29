@@ -29,10 +29,10 @@ export default function AboutPage() {
               <li>Accessible technology for all</li>
             </ul>
 
-            <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Get Started</h2>
+            <h2 className="text-2xl font-bold text-foreground mt-8 mb-4 ">Get Started</h2>
             <p>
               Ready to share your story?{" "}
-              <Link href="/auth/signup" className="text-primary hover:underline font-semibold">
+              <Link href="/auth/signup" className="bg-indigo-800 text-white px-4 py-2 rounded-lg hover:bg-indigo-800 font-semibold inline-block">
                 Create an account
               </Link>
               {" "}and start writing today.

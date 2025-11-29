@@ -115,13 +115,13 @@ export default function Home() {
                 thinkers.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" asChild>
+                <Button size="lg" asChild className="bg-indigo-800 hover:bg-indigo-900 text-white">
                   <Link href="/auth/signup">
                     <PenTool size={20} />
                     Start Writing
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" asChild>
+                <Button variant="outline" size="lg" asChild className="bg-white text-indigo-800 border-2 border-indigo-800 hover:bg-gray-50">
                   <Link href="/explore">
                     <Compass size={20} />
                     Explore Stories
@@ -261,7 +261,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-indigo-200 rounded-lg flex items-center justify-center mb-4">
                 <BookOpen className="text-indigo-800" size={24} />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Rich Text Editor</h3>
@@ -271,7 +271,7 @@ export default function Home() {
             </div>
 
             <div className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-indigo-200 rounded-lg flex items-center justify-center mb-4">
                 <Share2 className="text-indigo-800" size={24} />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Easy Sharing</h3>
@@ -281,7 +281,7 @@ export default function Home() {
             </div>
 
             <div className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-indigo-200 rounded-lg flex items-center justify-center mb-4">
                 <Zap className="text-indigo-800" size={24} />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Lightning Fast</h3>

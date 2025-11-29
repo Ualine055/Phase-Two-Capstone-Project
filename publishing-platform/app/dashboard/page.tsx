@@ -120,7 +120,7 @@ export default function DashboardPage() {
               <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
               <p className="text-foreground/70 mt-1">Welcome back! Here's your publishing stats.</p>
             </div>
-            <Button asChild>
+            <Button asChild className="bg-indigo-800 hover:bg-indigo-900 text-white">
               <Link href="/write">
                 <Plus size={16} />
                 New Story
@@ -292,7 +292,7 @@ export default function DashboardPage() {
                     <BookOpen size={48} className="mx-auto mb-4 text-foreground/30" />
                     <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
                     <p className="text-foreground/70 mb-6">Start writing your first story to see it here.</p>
-                    <Button asChild>
+                    <Button asChild className="bg-indigo-800 hover:bg-indigo-900 text-white">
                       <Link href="/write">
                         <Plus size={16} />
                         Write Your First Story

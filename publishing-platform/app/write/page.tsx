@@ -192,6 +192,7 @@ export default function WritePage() {
               variant="outline"
               onClick={handleSaveDraft}
               disabled={loading}
+              className="bg-white text-indigo-800 border-2 border-indigo-800 hover:bg-gray-50"
             >
               <Save size={18} />
               <span className="hidden sm:inline">Save Draft</span>
@@ -199,6 +200,7 @@ export default function WritePage() {
             <Button
               variant="outline"
               onClick={() => setIsPreview(!isPreview)}
+              className="bg-white text-indigo-800 border-2 border-indigo-800 hover:bg-gray-50"
             >
               <Eye size={18} />
               <span className="hidden sm:inline">{isPreview ? "Edit" : "Preview"}</span>
@@ -206,6 +208,7 @@ export default function WritePage() {
             <Button
               onClick={handlePublish}
               disabled={loading}
+              className="bg-indigo-800 hover:bg-indigo-900 text-white"
             >
               <Send size={18} />
               Publish

@@ -10,7 +10,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 font-bold text-lg text-indigo-800 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center bg-indigo-800 text-white">
+              <div className="w-8 h-8 rounded-lg bg-indigo-800 flex items-center justify-center text-white">
                 <BookOpen size={20} />
               </div>
               Publish

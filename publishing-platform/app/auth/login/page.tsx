@@ -86,7 +86,7 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-primary-foreground mx-auto mb-4">
+            <div className="w-12 h-12 rounded-lg bg-indigo-800 flex items-center justify-center text-white mx-auto mb-4">
               <BookOpen size={28} />
             </div>
             <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
@@ -129,7 +129,7 @@ export default function LoginPage() {
               {errors.password && <p className="text-destructive text-sm mt-1">{errors.password}</p>}
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full mt-6">
+            <Button type="submit" disabled={isLoading} className="w-full mt-6 bg-indigo-800 hover:bg-indigo-900 text-white">
               {isLoading ? "Signing In..." : "Sign In"}
             </Button>
           </form>
@@ -149,13 +149,13 @@ export default function LoginPage() {
 
           <p className="text-center text-foreground/70 mt-6">
             Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-primary hover:underline font-semibold">
+            <Link href="/auth/signup" className="text-indigo-800 hover:underline font-semibold">
               Create one
             </Link>
           </p>
 
           <p className="text-center text-foreground/70 text-sm mt-4">
-            <Link href="/forgot-password" className="text-primary hover:underline">
+            <Link href="/forgot-password" className="text-indigo-800 hover:underline">
               Forgot password?
             </Link>
           </p>

@@ -184,7 +184,6 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
           <div className="mb-8">
             <Button variant="ghost" size="sm" asChild className="mb-4 -ml-2">
               <Link href="/">
-                <ArrowLeft size={16} />
                 Back to Home
               </Link>
             </Button>
@@ -218,12 +217,10 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
                 <div className="flex gap-2">
                   <Button variant="outline" asChild>
                     <Link href={`/write?edit=${post.id}`}>
-                      <Edit size={16} />
                       Edit
                     </Link>
                   </Button>
                   <Button variant="destructive" onClick={handleDeletePost}>
-                    <Trash2 size={16} />
                     Delete
                   </Button>
                 </div>

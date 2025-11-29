@@ -83,7 +83,7 @@ export default function SignUpPage() {
       <div className="flex-1 flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-primary-foreground mx-auto mb-4">
+            <div className="w-12 h-12 rounded-lg bg-indigo-800 flex items-center justify-center text-white mx-auto mb-4">
               <BookOpen size={28} />
             </div>
             <h1 className="text-3xl font-bold text-foreground">Create Account</h1>
@@ -152,14 +152,14 @@ export default function SignUpPage() {
               {errors.confirmPassword && <p className="text-destructive text-sm mt-1">{errors.confirmPassword}</p>}
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full mt-6">
+            <Button type="submit" disabled={isLoading} className="w-full mt-6 bg-indigo-800 hover:bg-indigo-900 text-white">
               {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
 
           <p className="text-center text-foreground/70 mt-6">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-primary hover:underline font-semibold">
+            <Link href="/auth/login" className="text-indigo-800 hover:underline font-semibold">
               Sign In
             </Link>
           </p>

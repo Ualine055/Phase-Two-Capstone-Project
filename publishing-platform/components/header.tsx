@@ -17,11 +17,11 @@ export function Header({ isAuthenticated }: HeaderProps) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary text-indigo-800">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white bg-indigo-800">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-indigo-800">
+            <div className="w-8 h-8 rounded-lg bg-indigo-800 flex items-center justify-center text-white">
               <BookOpen size={20} />
             </div>
-            <span className="hidden sm:inline">Publish</span>
+            <span className="hidden sm:inline text-indigo-800">Publish</span>
           </Link>
 
           {/* Search */}
@@ -49,7 +49,7 @@ export function Header({ isAuthenticated }: HeaderProps) {
                 <Link href="/dashboard" className="text-foreground/70 hover:text-foreground transition-colors">
                   Dashboard
                 </Link>
-                <Button asChild>
+                <Button asChild className="bg-indigo-800 hover:bg-indigo-900 text-white">
                   <Link href="/write">
                     <PenTool size={16} />
                     Write
@@ -61,7 +61,7 @@ export function Header({ isAuthenticated }: HeaderProps) {
                 <Link href="/auth/login" className="text-foreground/70 hover:text-foreground transition-colors">
                   Sign In
                 </Link>
-                <Button asChild>
+                <Button asChild className="bg-indigo-800 hover:bg-indigo-800 text-white">
                   <Link href="/auth/signup">
                     Get Started
                   </Link>
@@ -99,7 +99,7 @@ export function Header({ isAuthenticated }: HeaderProps) {
                   <Link href="/dashboard" className="px-4 py-2 text-foreground/70 hover:text-foreground">
                     Dashboard
                   </Link>
-                  <Button asChild className="justify-start">
+                  <Button asChild className="justify-start bg-indigo-800 hover:bg-indigo-900 text-white">
                     <Link href="/write">
                       <PenTool size={16} />
                       Write
@@ -111,7 +111,7 @@ export function Header({ isAuthenticated }: HeaderProps) {
                   <Link href="/auth/login" className="px-4 py-2 text-foreground/70 hover:text-foreground">
                     Sign In
                   </Link>
-                  <Button asChild className="justify-start">
+                  <Button asChild className="justify-start bg-indigo-700 hover:bg-indigo-800">
                     <Link href="/auth/signup">
                       Get Started
                     </Link>
