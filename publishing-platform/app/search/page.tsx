@@ -11,8 +11,77 @@ export default function SearchPage() {
   const [results, setResults] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState("all")
+  const [allPosts, setAllPosts] = useState<any[]>([])
 
-  // Debounced search
+  // Load all posts on component mount
+  useEffect(() => {
+    const loadAllPosts = async () => {
+      try {
+        // Mock posts
+        const mockPosts = [
+          {
+            id: "mock-1",
+            title: "Getting Started with Next.js 16: A Comprehensive Guide",
+            excerpt: "Learn how to build modern web applications with Next.js 16, featuring Turbopack, React Server Components, and more.",
+            author: "Sarah Chen",
+            avatar: "/abstract-profile.png",
+            date: "2 hours ago",
+            readTime: "8 min",
+            category: "Technology",
+            likes: 1240,
+            comments: 48,
+          },
+          {
+            id: "mock-2",
+            title: "The Art of Minimalist Design in 2025",
+            excerpt: "Explore how minimalism is reshaping digital design, creating experiences that are both beautiful and functional.",
+            author: "Marcus Rivera",
+            avatar: "/abstract-user-profile.png",
+            date: "4 hours ago",
+            readTime: "6 min",
+            category: "Design",
+            likes: 892,
+            comments: 32,
+          },
+          {
+            id: "mock-3",
+            title: "TypeScript Best Practices for Enterprise Applications",
+            excerpt: "Master advanced TypeScript patterns and practices to write scalable, maintainable code in large-scale projects.",
+            author: "Emma Johnson",
+            avatar: "/abstract-geometric-profile.png",
+            date: "6 hours ago",
+            readTime: "10 min",
+            category: "Programming",
+            likes: 2103,
+            comments: 67,
+          },
+        ]
+
+        // Fetch real posts from Firebase
+        const response = await fetch('/api/posts?limit=50')
+        let userPosts = []
+        if (response.ok) {
+          const data = await response.json()
+          userPosts = data.posts || []
+        }
+
+        setAllPosts([...mockPosts, ...userPosts])
+      } catch (error) {
+        console.error('Error loading posts:', error)
+      }
+    }
+
+    loadAllPosts()
+
+    // Get query from URL
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlQuery = urlParams.get('q')
+    if (urlQuery) {
+      setQuery(urlQuery)
+    }
+  }, [])
+
+  // Search functionality
   useEffect(() => {
     if (!query.trim()) {
       setResults([])
@@ -21,38 +90,28 @@ export default function SearchPage() {
 
     const timer = setTimeout(() => {
       setIsLoading(true)
-      // Simulate API call
-      setTimeout(() => {
-        setResults([
-          {
-            id: 1,
-            title: "Getting Started with Next.js 16",
-            excerpt: "Learn how to build modern applications...",
-            author: "Sarah Chen",
-            avatar: "/abstract-profile.png",
-            date: "2 hours ago",
-            readTime: "8 min",
-            likes: 1240,
-            comments: 48,
-          },
-          {
-            id: 2,
-            title: "Advanced TypeScript Patterns",
-            excerpt: "Master advanced TypeScript for enterprise apps...",
-            author: "Emma Johnson",
-            avatar: "/abstract-geometric-profile.png",
-            date: "1 day ago",
-            readTime: "12 min",
-            likes: 856,
-            comments: 32,
-          },
-        ])
-        setIsLoading(false)
-      }, 300)
-    }, 500)
+      
+      const searchResults = allPosts.filter(post => {
+        const matchesQuery = 
+          post.title.toLowerCase().includes(query.toLowerCase()) ||
+          post.excerpt?.toLowerCase().includes(query.toLowerCase()) ||
+          post.author?.toLowerCase().includes(query.toLowerCase()) ||
+          post.category?.toLowerCase().includes(query.toLowerCase()) ||
+          post.tags?.some((tag: string) => tag.toLowerCase().includes(query.toLowerCase()))
+        
+        const matchesFilter = selectedFilter === 'all' || 
+          post.category?.toLowerCase() === selectedFilter.toLowerCase() ||
+          post.tags?.some((tag: string) => tag.toLowerCase() === selectedFilter.toLowerCase())
+        
+        return matchesQuery && matchesFilter
+      })
+      
+      setResults(searchResults)
+      setIsLoading(false)
+    }, 300)
 
     return () => clearTimeout(timer)
-  }, [query])
+  }, [query, selectedFilter, allPosts])
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -78,7 +137,7 @@ export default function SearchPage() {
 
             {/* Filters */}
             <div className="flex gap-2">
-              {["all", "Technology", "Design", "Business"].map((filter) => (
+              {["all", "Technology", "Design", "Programming", "Business"].map((filter) => (
                 <button
                   key={filter}
                   onClick={() => setSelectedFilter(filter)}

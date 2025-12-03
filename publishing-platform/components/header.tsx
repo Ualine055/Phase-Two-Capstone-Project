@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Search, Menu, X, BookOpen, PenTool } from "lucide-react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 interface HeaderProps {
@@ -11,6 +12,15 @@ interface HeaderProps {
 
 export function Header({ isAuthenticated }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const router = useRouter()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -26,14 +36,16 @@ export function Header({ isAuthenticated }: HeaderProps) {
 
           {/* Search */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
+            <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search stories..."
                 className="w-full pl-10 pr-4 py-2 rounded-full bg-muted border border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-            </div>
+            </form>
           </div>
 
           {/* Navigation */}
@@ -80,14 +92,16 @@ export function Header({ isAuthenticated }: HeaderProps) {
         {isMenuOpen && (
           <div className="md:hidden border-t border-border py-4">
             <div className="flex flex-col gap-4">
-              <div className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/50" size={18} />
                 <input
                   type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search..."
                   className="w-full pl-10 pr-4 py-2 rounded-full bg-muted border border-border"
                 />
-              </div>
+              </form>
               <Link href="/explore" className="px-4 py-2 text-foreground/70 hover:text-foreground">
                 Explore
               </Link>
